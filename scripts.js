@@ -11,6 +11,58 @@ var counter = 0; // 计数器
 var move_history=[]
 
 
+function storeHistory() {
+    localStorage.setItem('move_history', JSON.stringify(move_history));
+  }
+
+function loadHistory() {
+    var storedHistory = JSON.parse(localStorage.getItem('move_history'));
+    if (storedHistory !== null) {
+      move_history = storedHistory;
+    }
+    recover_from_history(move_history);
+}
+
+function clear_all(){
+
+    grids = document.getElementsByClassName('grid-item');
+    for(let i = 0; i < h_borders.length; i++){
+        h_borders[i].style.borderColor = '#cccccc';
+        v_borders[i].style.borderColor = '#cccccc';
+    }
+    for(let i = 0; i < grids.length; i++){
+        grids[i].style.backgroundColor = '#ffffff';
+    }
+    // 初始化状态
+    player=0;
+    player_score = [0,0];
+    color = color_list[0];
+    counter = 0;
+    update_score();
+    change_player(player);
+}
+
+
+function recover_from_history(move_history){
+    clear_all()
+    if(move_history.length == 0){
+        setTimeout(function(){ alert("no history moves!"); }, 0);
+        return;
+    }
+    for(let i = 0; i < move_history.length; i++){
+        var id = move_history[i];
+        if(id>=0){
+            var element = h_borders[id];
+        }else{
+            id = -id-1;
+            var element = v_borders[id];
+        }
+        
+        process_click(element,history=false);
+    }
+    
+}
+
 function update_score(){
     var red_score = document.querySelector('.score_r');
     var blue_score = document.querySelector('.score_b');
@@ -22,6 +74,8 @@ class Grid{
     constructor(childs,grid){
         this.childs = childs; // 4元素的列表，存储4个边框
         this.grid = grid; // 存储当前格子
+
+        this.grid.parent_obj = this;
         for(let i = 0; i < this.childs.length; i++){
             this.childs[i].parent_grid.push(this)
         }
@@ -37,6 +91,92 @@ class Grid{
     }
     color(color){
         this.grid.style.backgroundColor = color;
+    }
+    leftBorder(){
+        var cnt = 0;
+        for(let i = 0; i < this.childs.length; i++){
+            if(rgbToHex(this.childs[i].style.borderColor) == '#cccccc'){
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+}
+
+function id2element(id){
+    if(id>=0){
+        var element = h_borders[id];
+    }else{
+        id = -id-1;
+        var element = v_borders[id];
+    }
+    return element;
+}
+
+function getRandomInt(min, max) { 
+    // 左闭右闭的随机取整数
+    min = Math.ceil(min); // 向上取整
+    max = Math.floor(max); // 向下取整
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function range(start, end) {
+    // 也是左闭右闭
+    return Array.from({ length: end - start + 1 }, (_, index) => index + start);
+  }
+
+function getRandomElementAndRemove(arr) {
+    if (arr.length === 0) return undefined; // 如果数组为空，则返回undefined
+
+    const randomIndex = Math.floor(Math.random() * arr.length); // 生成随机索引
+    const removedElement = arr.splice(randomIndex, 1)[0]; // 移除随机元素并返回它
+    return removedElement;
+}
+  
+
+function random_move(){
+    var available_grids_cnt = 0;
+    for(let i = 0; i < grids.length; i++){
+        var parent_grid = grids[i].parent_obj;
+        if(parent_grid.leftBorder() > 2){
+            available_grids_cnt++;
+        }
+    }
+    if(available_grids_cnt == 0){
+        alert("no available grids 没有可以随机移动的格子了");
+        return;
+    }
+    var cnt = 0;
+    var total = num*(num+1)
+    var ids=range(-total,total-1);
+    while(cnt<2*total){
+        cnt++;
+        var random_id = getRandomElementAndRemove(ids);
+        var element = id2element(random_id);
+        var parent_grids = element.parent_grid;
+
+        var flag = true;
+        if(rgbToHex(element.style.borderColor) != '#cccccc'){
+            continue
+        }
+        for(i = 0; i < parent_grids.length; i++){
+            if(parent_grids[i].leftBorder() <= 2){
+                flag = false;
+                break;
+            }
+        }
+        if(flag){
+            process_click(element);
+            return;
+        }
+        
+    }
+    return;
+}
+
+function random_move_4(){
+    for(let i = 0; i < 4; i++){
+        random_move();
     }
 }
 
@@ -55,27 +195,8 @@ function roll_back(){
         alert("no history moves!");
         return;
     }
-    var his = move_history.pop();
-    var id = his['id'];
-    player = his['player'];
-    player_score=his['player_score'];
-    counter=his['counter'];
-
-    var h_borders = document.getElementsByClassName('horizontal-border');
-    var v_borders = document.getElementsByClassName('vertical-border');
-    if(id>=0){
-        var element = h_borders[id];
-    }else{
-        id = -id-1;
-        element = v_borders[id];
-    }
-    element.style.borderColor = '#cccccc';
-    var parent_grid = element.parent_grid;
-    for(let i = 0; i < parent_grid.length; i++){
-        parent_grid[i].grid.style.backgroundColor = '#ffffff';
-    }
-    change_player(player);
-    update_score()
+    move_history.pop();
+    recover_from_history(move_history);
 }
 
 function change_player(player){
@@ -93,17 +214,9 @@ function change_player(player){
 
 }
 
-function process_click(element) {
-    // 记录历史
-    move_history.push({
-        'id':element.id,
-        'player':player,
-        'counter':counter,
-        'player_score':JSON.parse(JSON.stringify(player_score))
-    });
-
+function process_click(element,his_mode=true) {
     // 进行游戏逻辑判定
-    // TODO: 判断是否合法操作（格子是不是已经被涂色）
+    // 判断是否合法操作（格子是不是已经被涂色）
     if(rgbToHex(element.style.borderColor) != '#cccccc'){
         alert("the border has been colored");
         return;
@@ -116,7 +229,7 @@ function process_click(element) {
     element.dispatchEvent(event);  // 触发事件
     
     
-    // TODO: 判断是否加分（是否切换玩家）
+    // 判断是否加分
     var parent_grid = element.parent_grid;
     var flag = false;
     for(let i = 0; i < parent_grid.length; i++){
@@ -126,23 +239,30 @@ function process_click(element) {
             flag = true;
         }
     }
-    
+    // 是否切换玩家
+    var change_player_flag=true;
     if(flag){
         counter++;
         update_score();
         if(counter < limit){ // 连走最大步数限制
-            return;
+            change_player_flag = false;
         }else{
             counter = 0;
         }
     }
 
-    
+    // 记录历史
+    if(his_mode){
+        move_history.push(element.id);
+        storeHistory();
+    }
+        
 
     // 切换玩家
-    player = (player+1)%2; 
-    change_player(player);
-
+    if(change_player_flag){
+        player = (player+1)%2; 
+        change_player(player);
+    }
     
 
   }
@@ -208,10 +328,9 @@ function createGrid(n,grid_len) {
         }  
     }
   
-    // 创建grid类
-    h_borders = document.getElementsByClassName('horizontal-border');
-    v_borders = document.getElementsByClassName('vertical-border');
-    grids = document.getElementsByClassName('grid-item');
+    window.h_borders = document.getElementsByClassName('horizontal-border');
+    window.v_borders = document.getElementsByClassName('vertical-border');
+    window.grids = document.getElementsByClassName('grid-item');
     for(let i = 0; i < n*n; i++){
         new Grid([h_borders[i],  h_borders[i+n],v_borders[(n+1)*Math.floor(i/n)+i%n], v_borders[(n+1)*Math.floor(i/n)+i%n+1]],grids[i]);
     }

@@ -33,6 +33,7 @@ html, body {
     align-items: center; 
     justify-content: space-around; /* 子元素之间的间距均匀分布 */
     margin-bottom: 20px; /* 与网格区域保持一定间距 */
+    gap: 2%;
   }
 
   .score {
@@ -108,7 +109,6 @@ html, body {
 
 
   .redpoint {
-    margin-left: 2%;
     width: 20px; /* 光标的宽度 */
     height: 20px; /* 光标的高度 */
     background-color: red;
