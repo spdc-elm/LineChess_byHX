@@ -79,6 +79,7 @@ function roll_back(){
 }
 
 function change_player(player){
+    counter=0
     var redpoint = document.querySelector('.redpoint');
     var bluepoint = document.querySelector('.bluepoint');
     if(player == 0){
