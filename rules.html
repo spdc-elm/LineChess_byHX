@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平板划线棋规则</title>
+<style>
+  body {
+    font-family: Arial, sans-serif; /* 设置字体 */
+    line-height: 1.6; /* 设置行高 */
+    margin: 20px; /* 设置页面边距 */
+  }
+  h1 {
+    text-align: center; /* 标题居中 */
+    margin-bottom: 20px; /* 标题与内容的距离 */
+  }
+  .rules {
+    background-color: #f0f0f0; /* 规则背景颜色 */
+    padding: 20px; /* 规则内容的内边距 */
+    border-radius: 10px; /* 规则内容的圆角 */
+  }
+  .rule {
+    margin-bottom: 10px; /* 每条规则之间的距离 */
+  }
+  .gif-image {
+    display: block; /* 防止动图与文本在同一行 */
+    margin: 10px 0; /* 在动图上下添加空间 */
+    max-width: 100%; /* 确保动图不会超出容器宽度 */
+    height: auto; /* 保持动图的宽高比 */
+  }
+</style>
+</head>
+<body>
+  <h1>平板划线棋规则</h1>
+  <div class="rules">
+    <p><strong>游戏创始人:</strong> HX</p>
+    <p><strong>网页实现者:</strong> XHK</p>
+    <ol>
+      <li>每个小格的四条边框都可以点击（划线），游戏红蓝双方轮流划线。红方先手开始。
+        <img src="rule1.gif" alt="动图描述" class="gif-image" />
+      </li>
+      <li>当一方划的线恰好将至少一个最小单位小方格围住，则该方得分。（当一个小方格四条边都被划线，称为被围住。划的这一条线使得几个方格被围住，就得几分）
+        <img src="rule2.gif" alt="动图描述" class="gif-image" />
+      </li>
+      <li>当一方得分，下一步由该方继续划线（最多连续走四步）
+        <img src="rule3.gif" alt="动图描述" class="gif-image" />
+      </li>
+      <li>最终所有边框都被划完结束游戏，得分高的一方胜。</li>
+    </ol>
+  </div>
+</body>
+</html>

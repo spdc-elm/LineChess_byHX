@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>平板划线棋 单机版 -- by HX</title>
+  <link rel="stylesheet" href="styles.css"> <!-- 引入外部 CSS 文件 -->
+</head>
+<body>
+    
+  <!-- 页面内容 -->
+
+    <div class="main-container">
+        <div class="text-container">
+            <div class="score-container">
+                <div class="score score_r">red: 0</div>
+                <div class="redpoint"></div>
+            </div>
+          
+            <div class="score-container">
+                <div class="score score_b">blue: 0</div>
+                <div class="bluepoint"></div>
+            </div>
+          <button onclick="roll_back()">Rollback</button>
+          <a href="rules.html">rules page 规则介绍</a>
+        </div>
+          <div id="g-grid"></div>
+      </div>
+  <script src="scripts.js"></script> <!-- 引入外部 JavaScript 文件 -->
+  
+
+  
+</body>
+</html>
+
